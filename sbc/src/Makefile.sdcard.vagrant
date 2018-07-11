@@ -1,0 +1,10 @@
+NODE ?=
+SBC ?=
+OS ?= armbian-beta-bionic
+SIZE ?= 4G
+TARGET = /srv/target
+
+$(TARGET)/sbc-$(NODE)-$(SBC)-$(OS)-sdcard.img: $(TARGET)/$(SBC)-$(OS).tar.gz $(TARGET)/$(NODE).tar.gz
+	-rm -f $(TMP)/$(notdir $@).tmp
+	./$(SBC)-sdcard.sh $(TMP)/$(notdir $@).tmp "$(SIZE)" $^
+	mv $(TMP)/$(notdir $@).tmp $@

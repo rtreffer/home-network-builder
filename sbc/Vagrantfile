@@ -1,0 +1,15 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/bionic64"
+
+  config.vm.synced_folder "../../", "/srv/"
+  config.vm.synced_folder "./src/", "/srv/src"
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 2048
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    /srv/src/vagrant-box.sh
+  SHELL
+end

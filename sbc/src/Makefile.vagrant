@@ -1,0 +1,49 @@
+TMP := /tmp
+TARGET := ../target
+
+$(TMP)/.gitignore:
+	-mkdir -p "$(TMP)/"
+	touch "$(TMP)/.gitignore"
+
+$(TMP)/bionic-armhf/.gitignore: $(TMP)/.gitignore
+	-umount $(TMP)/bionic-armhf-tmp/*
+	-rm -rf "$(TMP)/bionic-armhf-tmp" "$(TMP)/bionic-armhf"
+	qemu-debootstrap --arch armhf --merged-usr bionic "$(TMP)/bionic-armhf-tmp" http://ports.ubuntu.com/
+	mount -o bind /dev   "$(TMP)/bionic-armhf-tmp/dev"
+	mount -o bind /proc  "$(TMP)/bionic-armhf-tmp/proc"
+	mount -o bind /sys   "$(TMP)/bionic-armhf-tmp/sys"
+	mount -o bind "$(dir $(abspath $(lastword $(MAKEFILE_LIST))))" "$(TMP)/bionic-armhf-tmp/srv"
+	chroot "$(TMP)/bionic-armhf-tmp" /srv/bionic.sh
+	chroot "$(TMP)/bionic-armhf-tmp" /srv/cleanup.sh
+	-umount $(TMP)/bionic-armhf-tmp/*
+	mv "$(TMP)/bionic-armhf-tmp" "$(TMP)/bionic-armhf"
+	touch "$@"
+
+$(TMP)/tinkerboard-armbian-beta-bionic/.gitignore: $(TMP)/bionic-armhf/.gitignore
+	-umount $(TMP)/tinkerboard-armbian-beta-bionic-tmp/*
+	-rm -rf "$(TMP)/tinkerboard-armbian-beta-bionic-tmp/" "$(TMP)/tinkerboard-armbian-beta-bionic"
+	rsync -KraulSpalt "$(TMP)/bionic-armhf/" "$(TMP)/tinkerboard-armbian-beta-bionic-tmp/"
+	mount -o bind /dev   "$(TMP)/tinkerboard-armbian-beta-bionic-tmp/dev"
+	mount -o bind /proc  "$(TMP)/tinkerboard-armbian-beta-bionic-tmp/proc"
+	mount -o bind /sys   "$(TMP)/tinkerboard-armbian-beta-bionic-tmp/sys"
+	mount -o bind "$(dir $(abspath $(lastword $(MAKEFILE_LIST))))" "$(TMP)/tinkerboard-armbian-beta-bionic-tmp/srv"
+	chroot "$(TMP)/tinkerboard-armbian-beta-bionic-tmp" /srv/armbian.sh
+	chroot "$(TMP)/tinkerboard-armbian-beta-bionic-tmp" /srv/armbian-beta.sh
+	chroot "$(TMP)/tinkerboard-armbian-beta-bionic-tmp" /srv/tinkerboard-armbian-beta.sh
+	chroot "$(TMP)/tinkerboard-armbian-beta-bionic-tmp" /srv/cleanup.sh
+	-umount $(TMP)/tinkerboard-armbian-beta-bionic-tmp/*
+	mv "$(TMP)/tinkerboard-armbian-beta-bionic-tmp" "$(TMP)/tinkerboard-armbian-beta-bionic"
+	touch "$@"
+
+$(TARGET)/tinkerboard-armbian-beta-bionic.tar.gz: $(TMP)/tinkerboard-armbian-beta-bionic/.gitignore
+	tar -c --sparse --preserve-permissions -C $(TMP)/tinkerboard-armbian-beta-bionic --exclude=.gitignore . | gzip -9 > "$(TMP)/tinkerboard-armbian-beta-bionic.tar.gz"
+	mv "$(TMP)/tinkerboard-armbian-beta-bionic.tar.gz" "$@"
+
+tinkerboard-armbian-beta-bionic: $(TARGET)/tinkerboard-armbian-beta-bionic.tar.gz
+
+$(TARGET)/tinkerboard-armbian-beta-bionic-sdcard.img: $(TARGET)/tinkerboard-armbian-beta-bionic.tar.gz
+	-rm -f $(TMP)/$(notdir $@).tmp
+	./tinkerboard-sdcard.sh $(TMP)/$(notdir $@).tmp 4G $<
+	mv $(TMP)/$(notdir $@).tmp $@
+
+tinkerboard-armbian-beta-bionic-sdcard: $(TARGET)/tinkerboard-armbian-beta-bionic-sdcard.img

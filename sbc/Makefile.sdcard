@@ -1,0 +1,9 @@
+NODE ?= 
+SBC ?= 
+OS ?= armbian-beta-bionic
+SIZE ?= 1G
+TARGET=../../target/
+
+$(TARGET)/sbc-$(NODE)-$(SBC)-$(OS)-sdcard.img: $(TARGET)/$(SBC)-$(OS).tar.gz $(TARGET)/$(NODE).tar.gz
+	-vagrant up
+	vagrant ssh -- sudo make -C /srv/src/ -f /srv/src/Makefile.sdcard.vagrant /srv/target/$(notdir $@) NODE=$(NODE) SBC=$(SBC) OS=$(OS) SIZE=$(SIZE)
