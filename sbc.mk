@@ -1,6 +1,12 @@
 container:
 	make -C build/build-container container
 
+target/tinkerboard-armbian-beta-bionic.tar.gz:
+	make -C build/sbc tinkerboard-armbian-beta-bionic
+
+target/rpi3-ubuntu-bionic-arm64.tar.gz:
+	make -C build/sbc rpi3-ubuntu-bionic-arm64
+
 # build-sbc-node requires as arguments:
 # 1. node name
 # 2. sbc
@@ -17,7 +23,7 @@ target/$(1).tar.gz: sbc-$(1)/* sbc-all/* container
 		-v $(PWD):/srv \
 		-w /srv \
 		--tmpfs /tmp \
-		--env-file env \
+		--env-file sbc-all/env \
 		--env-file sbc-$(1)/env \
 		home-network-builder \
 		bash -c " \

@@ -1,7 +1,7 @@
 NODE ?= 
 SBC ?= 
 OS ?= armbian-beta-bionic
-SIZE ?= 1G
+SIZE ?= 2G
 TARGET=../../target/
 
 $(TARGET)/sbc-$(NODE)-$(SBC)-$(OS)-sdcard.img: $(TARGET)/$(SBC)-$(OS).tar.gz $(TARGET)/$(NODE).tar.gz

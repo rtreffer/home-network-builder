@@ -1,5 +1,3 @@
-all: vagrant-up tinkerboard-armbian-beta-bionic
-
 vagrant-down:
 	-vagrant destroy --force
 
@@ -17,5 +15,5 @@ vagrant-rebuild: vagrant-down vagrant-up
 tinkerboard-armbian-beta-bionic:
 	vagrant ssh -- sudo make -C /srv/src/ -f /srv/src/Makefile.vagrant $@
 
-tinkerboard-armbian-beta-bionic-sdcard:
+rpi3-ubuntu-bionic-arm64:
 	vagrant ssh -- sudo make -C /srv/src/ -f /srv/src/Makefile.vagrant $@

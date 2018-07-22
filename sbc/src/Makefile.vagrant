@@ -5,6 +5,8 @@ $(TMP)/.gitignore:
 	-mkdir -p "$(TMP)/"
 	touch "$(TMP)/.gitignore"
 
+# Ubuntu bionic (armhf / arm64)
+
 $(TMP)/bionic-armhf/.gitignore: $(TMP)/.gitignore
 	-umount $(TMP)/bionic-armhf-tmp/*
 	-rm -rf "$(TMP)/bionic-armhf-tmp" "$(TMP)/bionic-armhf"
@@ -18,6 +20,44 @@ $(TMP)/bionic-armhf/.gitignore: $(TMP)/.gitignore
 	-umount $(TMP)/bionic-armhf-tmp/*
 	mv "$(TMP)/bionic-armhf-tmp" "$(TMP)/bionic-armhf"
 	touch "$@"
+
+$(TMP)/bionic-arm64/.gitignore: $(TMP)/.gitignore
+	-umount $(TMP)/bionic-arm64-tmp/*
+	-rm -rf "$(TMP)/bionic-arm64-tmp" "$(TMP)/bionic-armhf"
+	qemu-debootstrap --arch arm64 --merged-usr bionic "$(TMP)/bionic-arm64-tmp" http://ports.ubuntu.com/
+	mount -o bind /dev   "$(TMP)/bionic-arm64-tmp/dev"
+	mount -o bind /proc  "$(TMP)/bionic-arm64-tmp/proc"
+	mount -o bind /sys   "$(TMP)/bionic-arm64-tmp/sys"
+	mount -o bind "$(dir $(abspath $(lastword $(MAKEFILE_LIST))))" "$(TMP)/bionic-arm64-tmp/srv"
+	chroot "$(TMP)/bionic-arm64-tmp" /srv/bionic.sh
+	chroot "$(TMP)/bionic-arm64-tmp" /srv/cleanup.sh
+	-umount $(TMP)/bionic-arm64-tmp/*
+	mv "$(TMP)/bionic-arm64-tmp" "$(TMP)/bionic-arm64"
+	touch "$@"
+
+# RPI3 (ubuntu bionic / arm64)
+
+$(TMP)/rpi3-ubuntu-bionic-arm64/.gitignore: $(TMP)/bionic-arm64/.gitignore
+	-umount $(TMP)/rpi3-ubuntu-bionic-arm64-tmp/*
+	-rm -rf "$(TMP)/rpi3-ubuntu-bionic-arm64-tmp/" "$(TMP)/rpi3-ubuntu-bionic-arm64-bionic"
+	rsync -KraulSpalt "$(TMP)/bionic-arm64/" "$(TMP)/rpi3-ubuntu-bionic-arm64-tmp/"
+	mount -o bind /dev   "$(TMP)/rpi3-ubuntu-bionic-arm64-tmp/dev"
+	mount -o bind /proc  "$(TMP)/rpi3-ubuntu-bionic-arm64-tmp/proc"
+	mount -o bind /sys   "$(TMP)/rpi3-ubuntu-bionic-arm64-tmp/sys"
+	mount -o bind "$(dir $(abspath $(lastword $(MAKEFILE_LIST))))" "$(TMP)/rpi3-ubuntu-bionic-arm64-tmp/srv"
+	chroot "$(TMP)/rpi3-ubuntu-bionic-arm64-tmp" /srv/rpi3-ubuntu-bionic-arm64.sh
+	chroot "$(TMP)/rpi3-ubuntu-bionic-arm64-tmp" /srv/cleanup.sh
+	-umount -fl $(TMP)/rpi3-ubuntu-bionic-arm64-tmp/*
+	mv "$(TMP)/rpi3-ubuntu-bionic-arm64-tmp" "$(TMP)/rpi3-ubuntu-bionic-arm64"
+	touch "$@"
+
+$(TARGET)/rpi3-ubuntu-bionic-arm64.tar.gz: $(TMP)/rpi3-ubuntu-bionic-arm64/.gitignore
+	tar -c --sparse --preserve-permissions -C $(TMP)/rpi3-ubuntu-bionic-arm64 --exclude=.gitignore . | gzip -9 > "$(TMP)/rpi3-ubuntu-bionic-arm64.tar.gz"
+	mv "$(TMP)/rpi3-ubuntu-bionic-arm64.tar.gz" "$@"
+
+rpi3-ubuntu-bionic-arm64: $(TARGET)/rpi3-ubuntu-bionic-arm64.tar.gz
+
+# Tinkerboard (armbian / ubuntu bionic / armhf)
 
 $(TMP)/tinkerboard-armbian-beta-bionic/.gitignore: $(TMP)/bionic-armhf/.gitignore
 	-umount $(TMP)/tinkerboard-armbian-beta-bionic-tmp/*
@@ -41,9 +81,3 @@ $(TARGET)/tinkerboard-armbian-beta-bionic.tar.gz: $(TMP)/tinkerboard-armbian-bet
 
 tinkerboard-armbian-beta-bionic: $(TARGET)/tinkerboard-armbian-beta-bionic.tar.gz
 
-$(TARGET)/tinkerboard-armbian-beta-bionic-sdcard.img: $(TARGET)/tinkerboard-armbian-beta-bionic.tar.gz
-	-rm -f $(TMP)/$(notdir $@).tmp
-	./tinkerboard-sdcard.sh $(TMP)/$(notdir $@).tmp 4G $<
-	mv $(TMP)/$(notdir $@).tmp $@
-
-tinkerboard-armbian-beta-bionic-sdcard: $(TARGET)/tinkerboard-armbian-beta-bionic-sdcard.img
