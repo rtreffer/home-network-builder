@@ -5,7 +5,7 @@ $(TMP)/.gitignore:
 	-mkdir -p "$(TMP)/"
 	touch "$(TMP)/.gitignore"
 
-# Ubuntu bionic (armhf / arm64)
+# Ubuntu bionic/cosmic (armhf / arm64)
 
 $(TMP)/bionic-armhf/.gitignore: $(TMP)/.gitignore
 	-umount $(TMP)/bionic-armhf-tmp/*
@@ -35,6 +35,20 @@ $(TMP)/bionic-arm64/.gitignore: $(TMP)/.gitignore
 	mv "$(TMP)/bionic-arm64-tmp" "$(TMP)/bionic-arm64"
 	touch "$@"
 
+$(TMP)/cosmic-arm64/.gitignore: $(TMP)/.gitignore
+	-umount $(TMP)/cosmic-arm64-tmp/*
+	-rm -rf "$(TMP)/cosmic-arm64-tmp" "$(TMP)/cosmic-armhf"
+	qemu-debootstrap --arch arm64 --merged-usr cosmic "$(TMP)/cosmic-arm64-tmp" http://ports.ubuntu.com/
+	mount -o bind /dev   "$(TMP)/cosmic-arm64-tmp/dev"
+	mount -o bind /proc  "$(TMP)/cosmic-arm64-tmp/proc"
+	mount -o bind /sys   "$(TMP)/cosmic-arm64-tmp/sys"
+	mount -o bind "$(dir $(abspath $(lastword $(MAKEFILE_LIST))))" "$(TMP)/cosmic-arm64-tmp/srv"
+	chroot "$(TMP)/cosmic-arm64-tmp" /srv/cosmic.sh
+	chroot "$(TMP)/cosmic-arm64-tmp" /srv/cleanup.sh
+	-umount $(TMP)/cosmic-arm64-tmp/*
+	mv "$(TMP)/cosmic-arm64-tmp" "$(TMP)/cosmic-arm64"
+	touch "$@"
+
 # RPI3 (ubuntu bionic / arm64)
 
 $(TMP)/rpi3-ubuntu-bionic-arm64/.gitignore: $(TMP)/bionic-arm64/.gitignore
@@ -51,11 +65,31 @@ $(TMP)/rpi3-ubuntu-bionic-arm64/.gitignore: $(TMP)/bionic-arm64/.gitignore
 	mv "$(TMP)/rpi3-ubuntu-bionic-arm64-tmp" "$(TMP)/rpi3-ubuntu-bionic-arm64"
 	touch "$@"
 
+$(TMP)/rpi3-ubuntu-cosmic-arm64/.gitignore: $(TMP)/cosmic-arm64/.gitignore
+	-umount $(TMP)/rpi3-ubuntu-cosmic-arm64-tmp/*
+	-rm -rf "$(TMP)/rpi3-ubuntu-cosmic-arm64-tmp/" "$(TMP)/rpi3-ubuntu-cosmic-arm64-bionic"
+	rsync -KraulSpalt "$(TMP)/cosmic-arm64/" "$(TMP)/rpi3-ubuntu-cosmic-arm64-tmp/"
+	mount -o bind /dev   "$(TMP)/rpi3-ubuntu-cosmic-arm64-tmp/dev"
+	mount -o bind /proc  "$(TMP)/rpi3-ubuntu-cosmic-arm64-tmp/proc"
+	mount -o bind /sys   "$(TMP)/rpi3-ubuntu-cosmic-arm64-tmp/sys"
+	mount -o bind "$(dir $(abspath $(lastword $(MAKEFILE_LIST))))" "$(TMP)/rpi3-ubuntu-cosmic-arm64-tmp/srv"
+	chroot "$(TMP)/rpi3-ubuntu-cosmic-arm64-tmp" /srv/rpi3-ubuntu-cosmic-arm64.sh
+	chroot "$(TMP)/rpi3-ubuntu-cosmic-arm64-tmp" /srv/cleanup.sh
+	-umount -fl $(TMP)/rpi3-ubuntu-cosmic-arm64-tmp/*
+	mv "$(TMP)/rpi3-ubuntu-cosmic-arm64-tmp" "$(TMP)/rpi3-ubuntu-cosmic-arm64"
+	touch "$@"
+
 $(TARGET)/rpi3-ubuntu-bionic-arm64.tar.gz: $(TMP)/rpi3-ubuntu-bionic-arm64/.gitignore
 	tar -c --sparse --preserve-permissions -C $(TMP)/rpi3-ubuntu-bionic-arm64 --exclude=.gitignore . | gzip -9 > "$(TMP)/rpi3-ubuntu-bionic-arm64.tar.gz"
 	mv "$(TMP)/rpi3-ubuntu-bionic-arm64.tar.gz" "$@"
 
 rpi3-ubuntu-bionic-arm64: $(TARGET)/rpi3-ubuntu-bionic-arm64.tar.gz
+
+$(TARGET)/rpi3-ubuntu-cosmic-arm64.tar.gz: $(TMP)/rpi3-ubuntu-cosmic-arm64/.gitignore
+	tar -c --sparse --preserve-permissions -C $(TMP)/rpi3-ubuntu-cosmic-arm64 --exclude=.gitignore . | gzip -9 > "$(TMP)/rpi3-ubuntu-cosmic-arm64.tar.gz"
+	mv "$(TMP)/rpi3-ubuntu-cosmic-arm64.tar.gz" "$@"
+
+rpi3-ubuntu-cosmic-arm64: $(TARGET)/rpi3-ubuntu-cosmic-arm64.tar.gz
 
 # Tinkerboard (armbian / ubuntu bionic / armhf)
 

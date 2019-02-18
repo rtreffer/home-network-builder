@@ -7,6 +7,9 @@ target/tinkerboard-armbian-beta-bionic.tar.gz:
 target/rpi3-ubuntu-bionic-arm64.tar.gz:
 	make -C build/sbc rpi3-ubuntu-bionic-arm64
 
+target/rpi3-ubuntu-cosmic-arm64.tar.gz:
+	make -C build/sbc rpi3-ubuntu-cosmic-arm64
+
 # build-sbc-node requires as arguments:
 # 1. node name
 # 2. sbc

@@ -2,18 +2,11 @@
 
 set -eu -o pipefail
 
-apt-get update
-apt-get install -y --no-install-recommends gnupg
-echo 'deb http://ppa.launchpad.net/rpi-distro/ppa/ubuntu bionic main' \
-  > /etc/apt/sources.list.d/ubuntu-rpi.list
-apt-key adv --keyserver keyserver.ubuntu.com --recv F5D7A79E01C27877
-apt-get update
-
 mkdir  /etc/flash-kernel
 echo 'Raspberry Pi 3 Model B' >  /etc/flash-kernel/machine
-apt-get install -y -f dosfstools rpiboot raspi3-firmware linux-image-raspi2
+apt-get install -y -f dosfstools raspi3-firmware linux-image-raspi2
 
-VERSION="1.20180619"
+VERSION="1.20180924"
 curl -L "https://github.com/raspberrypi/firmware/archive/${VERSION}.tar.gz" | \
   tar -xzvC /boot/firmware/ --strip-components=2 "firmware-${VERSION}/boot/"
 

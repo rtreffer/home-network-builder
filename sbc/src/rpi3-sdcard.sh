@@ -22,7 +22,6 @@ echo ":: >> Create rpi3 sdcard image"
 echo ":: Create ${size} image ${image}"
 rm -f "${image}" || :
 qemu-img create -f raw "${image}" "${size}"
-zcat tinkerboard.boot.gz | dd if=/dev/stdin of="${image}" conv=nocreat,notrunc
 
 echo ":: Partition ${image}"
 parted --script \

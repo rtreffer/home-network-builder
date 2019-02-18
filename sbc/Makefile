@@ -17,3 +17,6 @@ tinkerboard-armbian-beta-bionic:
 
 rpi3-ubuntu-bionic-arm64:
 	vagrant ssh -- sudo make -C /srv/src/ -f /srv/src/Makefile.vagrant $@
+
+rpi3-ubuntu-cosmic-arm64:
+	vagrant ssh -- sudo make -C /srv/src/ -f /srv/src/Makefile.vagrant $@

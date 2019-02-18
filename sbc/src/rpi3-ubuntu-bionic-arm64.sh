@@ -13,7 +13,7 @@ mkdir  /etc/flash-kernel
 echo 'Raspberry Pi 3 Model B' >  /etc/flash-kernel/machine
 apt-get install -y -f dosfstools rpiboot raspi3-firmware linux-image-raspi2
 
-VERSION="1.20180619"
+VERSION="1.20180924"
 curl -L "https://github.com/raspberrypi/firmware/archive/${VERSION}.tar.gz" | \
   tar -xzvC /boot/firmware/ --strip-components=2 "firmware-${VERSION}/boot/"
 
