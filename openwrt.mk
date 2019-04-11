@@ -1,7 +1,7 @@
 BASE_FOLDER ?=$(abspath $(dir $(firstword $(MAKEFILE_LIST))))
 OPENWRT_BUILDER_FOLDER ?=$(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 OPENWRT_DOWNLOAD_FOLDER ?=$(OPENWRT_BUILDER_FOLDER)/tmp/
-OPENWRT_BUILDSCRIPT="set -eux -o pipefail ; mkdir -p /srv/overlay ; rsync -KraulSpalt /srv/overlay-base/* /srv/overlay/ ; rsync -KraulSpalt /srv/overlay-node/* /srv/overlay/ ; cd /srv/builder/ && /usr/local/bin/secret-env /srv/secrets/env.enc /srv/overlay/etc/secrets/env make image PROFILE=\$${PROFILE} EXTRA_IMAGE_NAME=\$${NODE} BIN_DIR=/srv/target/ FILES=/srv/overlay/ PACKAGES=\"\$${BASE_PACKAGES} \$${BASE_PACKAGES-VERSION} \$${PACKAGES} \$${PACKAGES_VERSION}\" ; chown \$${TARGET_UID} /srv/target/*\$${NODE}*"
+OPENWRT_BUILDSCRIPT="set -eux -o pipefail ; mkdir -p /srv/overlay ; rsync -KraulSpalt /srv/overlay-base/* /srv/overlay/ ; rsync -KraulSpalt /srv/overlay-node/* /srv/overlay/ ; cd /srv/builder/ && /usr/local/bin/secret-env /srv/secrets/env.enc /srv/overlay/etc/secrets/env make image PROFILE=\$${PROFILE} EXTRA_IMAGE_NAME=\$${NODE} BIN_DIR=/srv/target/ FILES=/srv/overlay/ PACKAGES=\"\$${BASE_PACKAGES} \$${BASE_PACKAGES_VERSION} \$${PACKAGES} \$${PACKAGES_VERSION}\" ; chown \$${TARGET_UID} /srv/target/*\$${NODE}*"
 
 $(OPENWRT_DOWNLOAD_FOLDER)/%:
 	mkdir -p "$@"
