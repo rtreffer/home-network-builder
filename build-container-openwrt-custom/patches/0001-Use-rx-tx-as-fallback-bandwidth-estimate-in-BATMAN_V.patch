@@ -1,0 +1,75 @@
+From d8a849295a516ea06eea8ef7d6bc4a5e6f07df60 Mon Sep 17 00:00:00 2001
+From: rtreffer <treffer@measite.de>
+Date: Sat, 8 Jun 2019 18:04:28 +0200
+Subject: [PATCH] Use rx/tx as fallback bandwidth estimate in BATMAN_V
+
+---
+ net/batman-adv/bat_v_elp.c | 31 +++++++++++++++++++++++++------
+ 1 file changed, 25 insertions(+), 6 deletions(-)
+
+diff --git a/net/batman-adv/bat_v_elp.c b/net/batman-adv/bat_v_elp.c
+index 2614a9ca..74b542b8 100644
+--- a/net/batman-adv/bat_v_elp.c
++++ b/net/batman-adv/bat_v_elp.c
+@@ -68,7 +68,7 @@ static u32 batadv_v_elp_get_throughput(struct batadv_hardif_neigh_node *neigh)
+ 	struct ethtool_link_ksettings link_settings;
+ 	struct net_device *real_netdev;
+ 	struct station_info sinfo;
+-	u32 throughput;
++	u32 throughput, rx, tx;
+ 	int ret;
+ 
+ 	/* if the user specified a customised value for this interface, then
+@@ -107,10 +107,26 @@ static u32 batadv_v_elp_get_throughput(struct batadv_hardif_neigh_node *neigh)
+ 		}
+ 		if (ret)
+ 			goto default_throughput;
+-		if (!(sinfo.filled & BIT(NL80211_STA_INFO_EXPECTED_THROUGHPUT)))
+-			goto default_throughput;
+ 
+-		return sinfo.expected_throughput / 100;
++		// expected_throughput is available - use it for throughput estimates
++		if (sinfo.filled & BIT(NL80211_STA_INFO_EXPECTED_THROUGHPUT)) {
++			return sinfo.expected_throughput / 100;
++		}
++
++		// try to estimate en expected throughput based on reported rx/tx rates
++		// 1/3 of tx or 1/3 of the average of rx and tx, whichever is smaller
++		if (sinfo.filled & BIT(NL80211_STA_INFO_TX_BITRATE)) {
++			tx = cfg80211_calculate_bitrate(&sinfo.txrate);
++			if (sinfo.filled & BIT(NL80211_STA_INFO_RX_BITRATE)) {
++				rx = cfg80211_calculate_bitrate(&sinfo.rxrate);
++				if (rx < tx) {
++					return (rx + tx) / 6;
++				}
++			}
++			return tx / 3;
++		}
++
++		goto default_throughput;
+ 	}
+ 
+ 	/* if not a wifi interface, check if this device provides data via
+@@ -168,14 +184,17 @@ void batadv_v_elp_throughput_metric_update(struct work_struct *work)
+ {
+ 	struct batadv_hardif_neigh_node_bat_v *neigh_bat_v;
+ 	struct batadv_hardif_neigh_node *neigh;
++	u32 throughput;
+ 
+ 	neigh_bat_v = container_of(work, struct batadv_hardif_neigh_node_bat_v,
+ 				   metric_work);
+ 	neigh = container_of(neigh_bat_v, struct batadv_hardif_neigh_node,
+ 			     bat_v);
+ 
+-	ewma_throughput_add(&neigh->bat_v.throughput,
+-			    batadv_v_elp_get_throughput(neigh));
++	throughput = batadv_v_elp_get_throughput(neigh);
++	if (throughput) {
++		ewma_throughput_add(&neigh->bat_v.throughput, throughput);
++	}
+ 
+ 	/* decrement refcounter to balance increment performed before scheduling
+ 	 * this task
+-- 
+2.20.1
+

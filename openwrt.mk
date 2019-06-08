@@ -19,6 +19,12 @@ container-$(1)-$(2)-$(3): container
 .PHONY: container-$(1)-$(2)-$(3)
 endef
 
+define openwrt-build-container-custom
+container-custom-$(1)-$(2): container
+	make -C build/build-container-openwrt-custom PLATFORM=$(1) TYPE=$(2)
+.PHONY: container-custom-$(1)-$(2)
+endef
+
 # build-node requires arguments:
 # 1. the node
 # 2. the openwrt version
