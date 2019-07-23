@@ -15,7 +15,7 @@ container:
 # 3. the sub type
 define openwrt-build-container
 container-$(1)-$(2)-$(3): container
-	docker build -t openwrt-builder-$(1)-$(2)-$(3) --build-arg VERSION=$(1) --build-arg PLATFORM=$(2) --build-arg TYPE=$(3) -f $(OPENWRT_BUILDER_FOLDER)/build-container-openwrt/Dockerfile $(OPENWRT_BUILDER_FOLDER)/build-container-openwrt
+	docker build -t openwrt-builder-$(call lc,$(1))-$(2)-$(3) --build-arg VERSION=$(1) --build-arg PLATFORM=$(2) --build-arg TYPE=$(3) -f $(OPENWRT_BUILDER_FOLDER)/build-container-openwrt/Dockerfile $(OPENWRT_BUILDER_FOLDER)/build-container-openwrt
 .PHONY: container-$(1)-$(2)-$(3)
 endef
 
@@ -46,7 +46,7 @@ $(1): container-$(2)-$(3)-$(4) $(OPENWRT_DOWNLOAD_FOLDER)/$(2)-$(3)-$(4)
 		-v $(BASE_FOLDER)/openwrt-$(1)/overlay:/srv/overlay-node \
 		--tmpfs /srv/overlay/etc/secrets \
 		-v $(OPENWRT_DOWNLOAD_FOLDER)/$(2)-$(3)-$(4):/srv/builder/dl \
-	openwrt-builder-$(2)-$(3)-$(4) \
+	openwrt-builder-$(call lc,$(2))-$(3)-$(4) \
 	bash -c $$(OPENWRT_BUILDSCRIPT)
 .PHONY: $(1)
 nodes: $(1)
