@@ -8,7 +8,8 @@ RUN apt-get update && \
       p7zip \
       time unzip file wget rsync git subversion gawk \
       build-essential g++ python \
-      libncurses5-dev zlib1g-dev libssl-dev
+      libncurses5-dev zlib1g-dev libssl-dev \
+      python3.8
 
 # arguments only apply to the later download
 ARG VERSION
