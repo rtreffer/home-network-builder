@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM registry.hub.docker.com/library/ubuntu:20.04
 
 # install the base packages
 RUN apt-get update && \
