@@ -7,7 +7,7 @@ RUN apt-get update && \
     apt-get install -f -y \
       p7zip \
       time unzip file wget rsync git subversion gawk \
-      build-essential g++ python \
+      build-essential g++ python3 \
       libncurses5-dev zlib1g-dev libssl-dev \
       python-is-python3 python3-distutils
 
