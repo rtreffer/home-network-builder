@@ -5,7 +5,7 @@ RUN apt-get update && \
     apt-get dist-upgrade -f -y && \
     apt full-upgrade -f -y && \
     apt-get install -f -y \
-      p7zip \
+      p7zip zstd \
       time unzip file wget rsync git subversion gawk \
       build-essential g++ python3 \
       libncurses5-dev zlib1g-dev libssl-dev \
