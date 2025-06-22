@@ -18,10 +18,17 @@ ARG TYPE=generic
 
 # install the lede image builder
 RUN if [ "${VERSION}" = "snapshot" ]; then \
-      wget -O /tmp/imagebuilder.tar.xz https://downloads.openwrt.org/snapshots/targets/${PLATFORM}/${TYPE}/openwrt-imagebuilder-${PLATFORM}-${TYPE}.Linux-x86_64.tar.xz; \
+      wget -O /tmp/imagebuilder.tar.xz https://downloads.openwrt.org/snapshots/targets/${PLATFORM}/${TYPE}/openwrt-imagebuilder-${PLATFORM}-${TYPE}.Linux-x86_64.tar.xz || \
+      wget -O /tmp/imagebuilder.tar.zst https://downloads.openwrt.org/snapshots/targets/${PLATFORM}/${TYPE}/openwrt-imagebuilder-${PLATFORM}-${TYPE}.Linux-x86_64.tar.zst ; \
     else \
-      wget -O /tmp/imagebuilder.tar.xz https://downloads.openwrt.org/releases/${VERSION}/targets/${PLATFORM}/${TYPE}/openwrt-imagebuilder-${VERSION}-${PLATFORM}-${TYPE}.Linux-x86_64.tar.xz; \
+      wget -O /tmp/imagebuilder.tar.xz https://downloads.openwrt.org/releases/${VERSION}/targets/${PLATFORM}/${TYPE}/openwrt-imagebuilder-${VERSION}-${PLATFORM}-${TYPE}.Linux-x86_64.tar.xz || \
+      wget -O /tmp/imagebuilder.tar.zst https://downloads.openwrt.org/releases/${VERSION}/targets/${PLATFORM}/${TYPE}/openwrt-imagebuilder-${VERSION}-${PLATFORM}-${TYPE}.Linux-x86_64.tar.zst ; \
     fi && \
     mkdir /srv/builder/ && \
-    tar -xJf /tmp/imagebuilder.tar.xz -C /srv/builder/ --strip-components=1 && \
-    rm /tmp/imagebuilder.tar.xz
+    if [ -f /tmp/imagebuilder.tar.xz ]; then\
+      tar -xJf /tmp/imagebuilder.tar.xz -C /srv/builder/ --strip-components=1 && \
+      rm /tmp/imagebuilder.tar.xz ; \
+    else \
+      tar -x --zstd -f /tmp/imagebuilder.tar.zst -C /srv/builder/ --strip-components=1 && \
+      rm /tmp/imagebuilder.tar.xz ; \
+    fi
