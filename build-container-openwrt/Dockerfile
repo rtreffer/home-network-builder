@@ -9,7 +9,7 @@ RUN apt-get update && \
       time unzip file wget rsync git subversion gawk \
       build-essential g++ python3 \
       libncurses5-dev zlib1g-dev libssl-dev \
-      python-is-python3 python3-distutils
+      python-is-python3 python3-distutils-extra
 
 # arguments only apply to the later download
 ARG VERSION
