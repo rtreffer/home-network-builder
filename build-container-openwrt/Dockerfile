@@ -30,5 +30,5 @@ RUN if [ "${VERSION}" = "snapshot" ]; then \
       rm /tmp/imagebuilder.tar.xz ; \
     else \
       tar -x --zstd -f /tmp/imagebuilder.tar.zst -C /srv/builder/ --strip-components=1 && \
-      rm /tmp/imagebuilder.tar.xz ; \
+      rm /tmp/imagebuilder.tar.zst ; \
     fi
