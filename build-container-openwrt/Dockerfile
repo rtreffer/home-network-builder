@@ -20,7 +20,7 @@ ARG TYPE=generic
 RUN if [ "${VERSION}" = "snapshot" ]; then \
       wget -O /tmp/imagebuilder.tar.xz https://downloads.openwrt.org/snapshots/targets/${PLATFORM}/${TYPE}/openwrt-imagebuilder-${PLATFORM}-${TYPE}.Linux-x86_64.tar.xz; \
     else \
-      wget -O /tmp/imagebuilder.tar.xz https://downloads.openwrt.org/releases/${VERSION}/targets/${PLATFORM}/${TYPE}/lede-imagebuilder-${VERSION}-${PLATFORM}-${TYPE}.Linux-x86_64.tar.xz; \
+      wget -O /tmp/imagebuilder.tar.xz https://downloads.openwrt.org/releases/${VERSION}/targets/${PLATFORM}/${TYPE}/openwrt-imagebuilder-${VERSION}-${PLATFORM}-${TYPE}.Linux-x86_64.tar.xz; \
     fi && \
     mkdir /srv/builder/ && \
     tar -xJf /tmp/imagebuilder.tar.xz -C /srv/builder/ --strip-components=1 && \
