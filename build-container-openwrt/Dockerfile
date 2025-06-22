@@ -25,10 +25,10 @@ RUN if [ "${VERSION}" = "snapshot" ]; then \
       wget -O /tmp/imagebuilder.tar.zst https://downloads.openwrt.org/releases/${VERSION}/targets/${PLATFORM}/${TYPE}/openwrt-imagebuilder-${VERSION}-${PLATFORM}-${TYPE}.Linux-x86_64.tar.zst ; \
     fi && \
     mkdir /srv/builder/ && \
-    if [ -f /tmp/imagebuilder.tar.xz ]; then\
-      tar -xJf /tmp/imagebuilder.tar.xz -C /srv/builder/ --strip-components=1 && \
-      rm /tmp/imagebuilder.tar.xz ; \
-    else \
+    if [ -f /tmp/imagebuilder.tar.zst ]; then \
       tar -x --zstd -f /tmp/imagebuilder.tar.zst -C /srv/builder/ --strip-components=1 && \
       rm /tmp/imagebuilder.tar.zst ; \
+    else \
+      tar -xJf /tmp/imagebuilder.tar.xz -C /srv/builder/ --strip-components=1 && \
+      rm /tmp/imagebuilder.tar.xz ; \
     fi
